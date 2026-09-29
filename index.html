@@ -3,20 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <title>Power BI Dynamic Discovery POC</title>
+
+    <script src="https://alcdn.msauth.net/browser/2.38.2/js/msal-browser.min.js"></script>
 </head>
 
 <body>
 
     <h2>Power BI Dynamic Discovery POC</h2>
 
-    <p>
-        This page will be used to discover Power BI report pages
-        and visuals using the Power BI JavaScript API.
+    <button id="loginButton">Sign in with Microsoft</button>
+
+    <p id="status">
+        Not signed in.
     </p>
 
-    <div id="status">
-        Discovery POC loaded.
-    </div>
+    <script>
+        const CLIENT_ID = "6588aca8-e4a4-4d89-b1b0-3ddac9ac3db9";
+
+        const msalConfig = {
+            auth: {
+                clientId: CLIENT_ID,
+                authority: "https://login.microsoftonline.com/organizations",
+                redirectUri:
+                    "https://gopitableau.github.io/Power-BI-Dynamic-Writeback-POC/"
+            },
+            cache: {
+                cacheLocation: "localStorage"
+            }
+        };
+
+        const msalInstance =
+            new msal.PublicClientApplication(msalConfig);
+
+        async function initialize() {
+            try {
+                await msalInstance.initialize();
+
+                const response =
+                    await msalInstance.handleRedirectPromise();
+
+                if (response) {
+                    showSignedInUser(response.account);
+                    return;
+                }
+
+                const accounts =
+                    msalInstance.getAllAccounts();
+
+                if (accounts.length > 0) {
+                    showSignedInUser(accounts[0]);
+                }
+
+            } catch (error) {
+                console.error(error);
+
+                document.getElementById("status").textContent =
+                    "Authentication error: " + error.message;
+            }
+        }
+
+        document.getElementById("loginButton")
+            .addEventListener("click", async function () {
+
+                try {
+                    await msalInstance.loginRedirect({
+                        scopes: [
+                            "User.Read",
+                            "https://analysis.windows.net/powerbi/api/Report.Read.All"
+                        ]
+                    });
+
+                } catch (error) {
+                    console.error(error);
+
+                    document.getElementById("status").textContent =
+                        "Login error: " + error.message;
+                }
+            });
+
+        function showSignedInUser(account) {
+            document.getElementById("status").textContent =
+                "Signed in successfully as: " +
+                (account.username || account.name);
+        }
+
+        initialize();
+    </script>
 
 </body>
 </html>
