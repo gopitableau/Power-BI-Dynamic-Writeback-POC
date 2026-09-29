@@ -10,14 +10,21 @@
     <script src="https://cdn.jsdelivr.net/npm/powerbi-client@2.23.1/dist/powerbi.min.js"></script>
 
     <style>
+
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
         }
 
         button {
-            margin-right: 10px;
             padding: 8px 14px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        select {
+            padding: 7px;
+            margin-left: 8px;
         }
 
         #embedContainer {
@@ -26,10 +33,39 @@
             margin-top: 20px;
         }
 
-        pre {
+        #tableContainer {
+            margin-top: 25px;
+            overflow-x: auto;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            min-width: 600px;
+        }
+
+        th,
+        td {
+            border: 1px solid #cccccc;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background: #f2f2f2;
+        }
+
+        input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 6px;
+        }
+
+        #result {
             white-space: pre-wrap;
             word-break: break-word;
         }
+
     </style>
 </head>
 
@@ -42,27 +78,38 @@
     </button>
 
     <button id="discoverButton" style="display:none;">
-        Discover Pages & Visuals
+        Discover Visuals
     </button>
 
     <p id="status">
         Not signed in.
     </p>
 
-    <pre id="result"></pre>
+    <div id="visualSelectorContainer" style="display:none;">
+
+        <label>
+            Select Visual:
+        </label>
+
+        <select id="visualSelector"></select>
+
+    </div>
+
+    <div id="tableContainer"></div>
 
     <div id="embedContainer"></div>
+
+    <pre id="result"></pre>
 
 
     <script>
 
         // ============================================================
-        // 1. CONFIGURATION
+        // CONFIGURATION
         // ============================================================
 
         const CLIENT_ID =
-            "6588aca8-e4a4-4d89-b1b0-3ddac9ac3db9"
- ;
+            "6588aca8-e4a4-4d89-b1b0-3ddac9ac3db9";
 
         const REPORT_ID =
             "3e159d02-3091-4567-884f-e47e2b868657";
@@ -72,7 +119,7 @@
 
 
         // ============================================================
-        // 2. MICROSOFT LOGIN CONFIGURATION
+        // MICROSOFT AUTHENTICATION
         // ============================================================
 
         const msalConfig = {
@@ -105,9 +152,11 @@
 
         let embeddedReport = null;
 
+        let discoveredVisuals = [];
+
 
         // ============================================================
-        // 3. INITIALIZE
+        // INITIALIZE
         // ============================================================
 
         async function initialize() {
@@ -119,9 +168,12 @@
                 const response =
                     await msalInstance.handleRedirectPromise();
 
+
                 if (response) {
 
-                    showSignedInUser(response.account);
+                    showSignedInUser(
+                        response.account
+                    );
 
                     return;
                 }
@@ -133,7 +185,9 @@
 
                 if (accounts.length > 0) {
 
-                    showSignedInUser(accounts[0]);
+                    showSignedInUser(
+                        accounts[0]
+                    );
                 }
 
             }
@@ -141,7 +195,9 @@
 
                 console.error(error);
 
-                document.getElementById("status").textContent =
+                document.getElementById(
+                    "status"
+                ).textContent =
                     "Authentication error: " +
                     error.message;
             }
@@ -149,11 +205,14 @@
 
 
         // ============================================================
-        // 4. LOGIN
+        // LOGIN
         // ============================================================
 
-        document.getElementById("loginButton")
-            .addEventListener("click", async function () {
+        document.getElementById(
+            "loginButton"
+        ).addEventListener(
+            "click",
+            async function () {
 
                 try {
 
@@ -171,36 +230,45 @@
 
                     console.error(error);
 
-                    document.getElementById("status").textContent =
+                    document.getElementById(
+                        "status"
+                    ).textContent =
                         "Login error: " +
                         error.message;
                 }
 
-            });
+            }
+        );
 
 
         // ============================================================
-        // 5. SHOW SIGNED-IN USER
+        // SHOW USER
         // ============================================================
 
         function showSignedInUser(account) {
 
-            document.getElementById("status").textContent =
+            document.getElementById(
+                "status"
+            ).textContent =
                 "Signed in successfully as: " +
                 (account.username || account.name);
 
 
-            document.getElementById("loginButton")
-                .style.display = "none";
+            document.getElementById(
+                "loginButton"
+            ).style.display =
+                "none";
 
 
-            document.getElementById("discoverButton")
-                .style.display = "inline-block";
+            document.getElementById(
+                "discoverButton"
+            ).style.display =
+                "inline-block";
         }
 
 
         // ============================================================
-        // 6. GET POWER BI TOKEN
+        // GET POWER BI ACCESS TOKEN
         // ============================================================
 
         async function getPowerBIAccessToken() {
@@ -232,19 +300,14 @@
 
 
         // ============================================================
-        // 7. DISCOVER PAGES AND VISUALS
+        // DISCOVER VISUALS
         // ============================================================
 
-        document.getElementById("discoverButton")
-            .addEventListener("click", async function () {
-
-                const resultElement =
-                    document.getElementById("result");
-
-
-                resultElement.textContent =
-                    "Getting Power BI access token...";
-
+        document.getElementById(
+            "discoverButton"
+        ).addEventListener(
+            "click",
+            async function () {
 
                 try {
 
@@ -252,12 +315,16 @@
                         await getPowerBIAccessToken();
 
 
-                    resultElement.textContent =
+                    document.getElementById(
+                        "status"
+                    ).textContent =
                         "Loading Power BI report...";
 
 
                     const models =
-                        window['powerbi-client'].models;
+                        window[
+                            "powerbi-client"
+                        ].models;
 
 
                     const embedConfiguration = {
@@ -317,15 +384,11 @@
 
                             try {
 
-                                resultElement.textContent =
-                                    "Report loaded. Discovering pages...";
-
-
                                 const pages =
                                     await embeddedReport.getPages();
 
 
-                                const result = [];
+                                discoveredVisuals = [];
 
 
                                 for (
@@ -333,79 +396,79 @@
                                 ) {
 
                                     const visuals =
-    await page.getVisuals();
-
-const visualResults = [];
-
-for (const visual of visuals) {
-
-    const visualResult = {
-
-        name: visual.name,
-
-        type: visual.type,
-
-        title: visual.title,
-
-        layout: visual.layout,
-
-        data: null,
-
-        dataError: null
-    };
-
-    try {
-
-        const exportResult =
-            await visual.exportData(
-                models.ExportDataType.Summarized,
-                100
-            );
-
-        visualResult.data =
-            exportResult.data;
-
-    }
-    catch (error) {
-
-        visualResult.dataError =
-            error.message;
-    }
-
-    visualResults.push(visualResult);
-}
+                                        await page.getVisuals();
 
 
-result.push({
+                                    for (
+                                        const visual of visuals
+                                    ) {
 
-    pageName:
-        page.name,
+                                        try {
 
-    pageDisplayName:
-        page.displayName,
+                                            const exportResult =
+                                                await visual.exportData(
+                                                    models.ExportDataType.Summarized,
+                                                    100
+                                                );
 
-    visuals:
-        visualResults
 
-});
+                                            discoveredVisuals.push({
 
+                                                pageName:
+                                                    page.name,
+
+                                                pageDisplayName:
+                                                    page.displayName,
+
+                                                visualName:
+                                                    visual.name,
+
+                                                visualType:
+                                                    visual.type,
+
+                                                visualTitle:
+                                                    visual.title,
+
+                                                data:
+                                                    exportResult.data
+
+                                            });
+
+                                        }
+                                        catch (error) {
+
+                                            console.log(
+                                                "Skipping visual:",
+                                                visual.name
+                                            );
+                                        }
+                                    }
                                 }
 
 
-                                resultElement.textContent =
-                                    JSON.stringify(
-                                        result,
-                                        null,
-                                        2
-                                    );
+                                populateVisualSelector();
+
+
+                                document.getElementById(
+                                    "visualSelectorContainer"
+                                ).style.display =
+                                    "block";
+
+
+                                document.getElementById(
+                                    "status"
+                                ).textContent =
+                                    "Visuals discovered successfully.";
 
                             }
                             catch (error) {
 
                                 console.error(error);
 
-                                resultElement.textContent =
-                                    "Discovery failed:\n\n" +
+                                document.getElementById(
+                                    "status"
+                                ).textContent =
+                                    "Discovery failed: " +
                                     error.message;
                             }
 
@@ -419,13 +482,10 @@ result.push({
 
                             console.error(event);
 
-                            resultElement.textContent =
-                                "Power BI report error:\n\n" +
-                                JSON.stringify(
-                                    event.detail,
-                                    null,
-                                    2
-                                );
+                            document.getElementById(
+                                "status"
+                            ).textContent =
+                                "Power BI report error.";
                         }
                     );
 
@@ -434,12 +494,301 @@ result.push({
 
                     console.error(error);
 
-                    resultElement.textContent =
-                        "Discovery failed:\n\n" +
+                    document.getElementById(
+                        "status"
+                    ).textContent =
+                        "Discovery failed: " +
                         error.message;
                 }
 
-            });
+            }
+        );
+
+
+        // ============================================================
+        // VISUAL DROPDOWN
+        // ============================================================
+
+        function populateVisualSelector() {
+
+            const selector =
+                document.getElementById(
+                    "visualSelector"
+                );
+
+
+            selector.innerHTML = "";
+
+
+            discoveredVisuals.forEach(
+                function (visual, index) {
+
+                    const option =
+                        document.createElement(
+                            "option"
+                        );
+
+
+                    option.value =
+                        index;
+
+
+                    option.textContent =
+                        visual.visualTitle ||
+                        visual.visualType ||
+                        visual.visualName;
+
+
+                    selector.appendChild(
+                        option
+                    );
+                }
+            );
+
+
+            if (
+                discoveredVisuals.length > 0
+            ) {
+
+                renderSelectedVisual(0);
+            }
+        }
+
+
+        // ============================================================
+        // VISUAL SELECTION
+        // ============================================================
+
+        document.getElementById(
+            "visualSelector"
+        ).addEventListener(
+            "change",
+            function () {
+
+                const index =
+                    Number(
+                        this.value
+                    );
+
+
+                renderSelectedVisual(
+                    index
+                );
+            }
+        );
+
+
+        // ============================================================
+        // RENDER SELECTED VISUAL DATA
+        // ============================================================
+
+        function renderSelectedVisual(index) {
+
+            const visual =
+                discoveredVisuals[index];
+
+
+            if (!visual) {
+
+                return;
+            }
+
+
+            const csv =
+                visual.data;
+
+
+            const rows =
+                parseCSV(csv);
+
+
+            if (
+                rows.length === 0
+            ) {
+
+                return;
+            }
+
+
+            const headers =
+                rows[0];
+
+
+            const dataRows =
+                rows.slice(1);
+
+
+            const table =
+                document.createElement(
+                    "table"
+                );
+
+
+            const thead =
+                document.createElement(
+                    "thead"
+                );
+
+
+            const headerRow =
+                document.createElement(
+                    "tr"
+                );
+
+
+            headers.forEach(
+                function (header) {
+
+                    const th =
+                        document.createElement(
+                            "th"
+                        );
+
+                    th.textContent =
+                        header;
+
+                    headerRow.appendChild(
+                        th
+                    );
+                }
+            );
+
+
+            const inputHeader =
+                document.createElement(
+                    "th"
+                );
+
+
+            inputHeader.textContent =
+                "User Input";
+
+
+            headerRow.appendChild(
+                inputHeader
+            );
+
+
+            thead.appendChild(
+                headerRow
+            );
+
+
+            table.appendChild(
+                thead
+            );
+
+
+            const tbody =
+                document.createElement(
+                    "tbody"
+                );
+
+
+            dataRows.forEach(
+                function (row, rowIndex) {
+
+                    const tr =
+                        document.createElement(
+                            "tr"
+                        );
+
+
+                    row.forEach(
+                        function (value) {
+
+                            const td =
+                                document.createElement(
+                                    "td"
+                                );
+
+                            td.textContent =
+                                value;
+
+                            tr.appendChild(
+                                td
+                            );
+                        }
+                    );
+
+
+                    const inputCell =
+                        document.createElement(
+                            "td"
+                        );
+
+
+                    const input =
+                        document.createElement(
+                            "input"
+                        );
+
+
+                    input.type =
+                        "text";
+
+
+                    input.dataset.rowIndex =
+                        rowIndex;
+
+
+                    inputCell.appendChild(
+                        input
+                    );
+
+
+                    tr.appendChild(
+                        inputCell
+                    );
+
+
+                    tbody.appendChild(
+                        tr
+                    );
+                }
+            );
+
+
+            table.appendChild(
+                tbody
+            );
+
+
+            const container =
+                document.getElementById(
+                    "tableContainer"
+                );
+
+
+            container.innerHTML =
+                "";
+
+
+            container.appendChild(
+                table
+            );
+        }
+
+
+        // ============================================================
+        // SIMPLE CSV PARSER
+        // ============================================================
+
+        function parseCSV(csv) {
+
+            const lines =
+                csv
+                    .trim()
+                    .split(/\r?\n/);
+
+
+            return lines.map(
+                function (line) {
+
+                    return line.split(",");
+                }
+            );
+        }
 
 
         initialize();
