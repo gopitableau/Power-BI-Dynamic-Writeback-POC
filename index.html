@@ -779,19 +779,29 @@
                         );
 
 
-                    const input =
-                        document.createElement(
-                            "input"
-                        );
+                   const input =
+    document.createElement(
+        "input"
+    );
 
+input.type =
+    "text";
 
-                    input.type =
-                        "text";
+input.dataset.edited =
+    "false";
 
+input.addEventListener(
+    "input",
+    function () {
 
-                    inputCell.appendChild(
-                        input
-                    );
+        input.dataset.edited =
+            "true";
+    }
+);
+
+inputCell.appendChild(
+    input
+);
 
 
                     tr.appendChild(
@@ -1237,4 +1247,4 @@
     </script>
 
 </body>
-</html>
+</html>	
