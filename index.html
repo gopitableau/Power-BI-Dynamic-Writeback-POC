@@ -61,9 +61,12 @@
             padding: 6px;
         }
 
-        #result {
-            white-space: pre-wrap;
-            word-break: break-word;
+        #actionContainer {
+            margin-top: 15px;
+        }
+
+        #embedContainer {
+            margin-top: 20px;
         }
 
     </style>
@@ -97,9 +100,15 @@
 
     <div id="tableContainer"></div>
 
-    <div id="embedContainer"></div>
+    <div id="actionContainer" style="display:none;">
 
-    <pre id="result"></pre>
+        <button id="addRowButton">
+            + Add Row
+        </button>
+
+    </div>
+
+    <div id="embedContainer"></div>
 
 
     <script>
@@ -153,6 +162,8 @@
         let embeddedReport = null;
 
         let discoveredVisuals = [];
+
+        let newRows = [];
 
 
         // ============================================================
@@ -456,6 +467,12 @@
 
 
                                 document.getElementById(
+                                    "actionContainer"
+                                ).style.display =
+                                    "block";
+
+
+                                document.getElementById(
                                     "status"
                                 ).textContent =
                                     "Visuals discovered successfully.";
@@ -550,6 +567,8 @@
                 discoveredVisuals.length > 0
             ) {
 
+                newRows = [];
+
                 renderSelectedVisual(0);
             }
         }
@@ -569,6 +588,9 @@
                     Number(
                         this.value
                     );
+
+
+                newRows = [];
 
 
                 renderSelectedVisual(
@@ -685,6 +707,10 @@
                 );
 
 
+            // --------------------------------------------------------
+            // EXISTING POWER BI ROWS
+            // --------------------------------------------------------
+
             dataRows.forEach(
                 function (row, rowIndex) {
 
@@ -749,6 +775,129 @@
             );
 
 
+            // --------------------------------------------------------
+            // NEW ROWS
+            // --------------------------------------------------------
+
+            newRows.forEach(
+                function (newRow, newRowIndex) {
+
+                    const tr =
+                        document.createElement(
+                            "tr"
+                        );
+
+
+                    headers.forEach(
+                        function (_, columnIndex) {
+
+                            const td =
+                                document.createElement(
+                                    "td"
+                                );
+
+
+                            const input =
+                                document.createElement(
+                                    "input"
+                                );
+
+
+                            input.type =
+                                "text";
+
+
+                            input.value =
+                                newRow[columnIndex] || "";
+
+
+                            input.dataset.newRowIndex =
+                                newRowIndex;
+
+
+                            input.dataset.columnIndex =
+                                columnIndex;
+
+
+                            input.addEventListener(
+                                "input",
+                                function () {
+
+                                    newRows[
+                                        newRowIndex
+                                    ][
+                                        columnIndex
+                                    ] =
+                                        this.value;
+                                }
+                            );
+
+
+                            td.appendChild(
+                                input
+                            );
+
+
+                            tr.appendChild(
+                                td
+                            );
+                        }
+                    );
+
+
+                    const userInputCell =
+                        document.createElement(
+                            "td"
+                        );
+
+
+                    const userInput =
+                        document.createElement(
+                            "input"
+                        );
+
+
+                    userInput.type =
+                        "text";
+
+
+                    userInput.value =
+                        newRow[
+                            headers.length
+                        ] || "";
+
+
+                    userInput.addEventListener(
+                        "input",
+                        function () {
+
+                            newRows[
+                                newRowIndex
+                            ][
+                                headers.length
+                            ] =
+                                this.value;
+                        }
+                    );
+
+
+                    userInputCell.appendChild(
+                        userInput
+                    );
+
+
+                    tr.appendChild(
+                        userInputCell
+                    );
+
+
+                    tbody.appendChild(
+                        tr
+                    );
+                }
+            );
+
+
             table.appendChild(
                 tbody
             );
@@ -768,6 +917,72 @@
                 table
             );
         }
+
+
+        // ============================================================
+        // ADD ROW
+        // ============================================================
+
+        document.getElementById(
+            "addRowButton"
+        ).addEventListener(
+            "click",
+            function () {
+
+                const selectedIndex =
+                    Number(
+                        document.getElementById(
+                            "visualSelector"
+                        ).value
+                    );
+
+
+                const visual =
+                    discoveredVisuals[
+                        selectedIndex
+                    ];
+
+
+                if (!visual) {
+
+                    return;
+                }
+
+
+                const rows =
+                    parseCSV(
+                        visual.data
+                    );
+
+
+                if (
+                    rows.length === 0
+                ) {
+
+                    return;
+                }
+
+
+                const columnCount =
+                    rows[0].length + 1;
+
+
+                const emptyRow =
+                    new Array(
+                        columnCount
+                    ).fill("");
+
+
+                newRows.push(
+                    emptyRow
+                );
+
+
+                renderSelectedVisual(
+                    selectedIndex
+                );
+            }
+        );
 
 
         // ============================================================
