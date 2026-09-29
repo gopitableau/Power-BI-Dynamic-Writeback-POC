@@ -333,37 +333,61 @@
                                 ) {
 
                                     const visuals =
-                                        await page.getVisuals();
+    await page.getVisuals();
+
+const visualResults = [];
+
+for (const visual of visuals) {
+
+    const visualResult = {
+
+        name: visual.name,
+
+        type: visual.type,
+
+        title: visual.title,
+
+        layout: visual.layout,
+
+        data: null,
+
+        dataError: null
+    };
+
+    try {
+
+        const exportResult =
+            await visual.exportData(
+                models.ExportDataType.Summarized,
+                100
+            );
+
+        visualResult.data =
+            exportResult.data;
+
+    }
+    catch (error) {
+
+        visualResult.dataError =
+            error.message;
+    }
+
+    visualResults.push(visualResult);
+}
 
 
-                                    result.push({
+result.push({
 
-                                        pageName:
-                                            page.name,
+    pageName:
+        page.name,
 
-                                        pageDisplayName:
-                                            page.displayName,
+    pageDisplayName:
+        page.displayName,
 
-                                        visuals:
-                                            visuals.map(
-                                                visual => ({
+    visuals:
+        visualResults
 
-                                                    name:
-                                                        visual.name,
-
-                                                    type:
-                                                        visual.type,
-
-                                                    title:
-                                                        visual.title,
-
-                                                    layout:
-                                                        visual.layout
-
-                                                })
-                                            )
-
-                                    });
+});
 
                                 }
 
