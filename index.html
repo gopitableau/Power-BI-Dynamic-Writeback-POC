@@ -133,14 +133,16 @@
         // ============================================================
 
         const CLIENT_ID =
-            "6588aca8-e4a4-4d89-b1b0-3ddac9ac3db9"
- ;
+            "6588aca8-e4a4-4d89-b1b0-3ddac9ac3db9";
 
         const REPORT_ID =
             "3e159d02-3091-4567-884f-e47e2b868657";
 
         const EMBED_URL =
             "https://app.powerbi.com/reportEmbed?reportId=3e159d02-3091-4567-884f-e47e2b868657&groupId=a7d9dbb8-000f-4978-8081-e658a24539b4";
+
+        const APPS_SCRIPT_URL =
+            "https://script.google.com/macros/s/AKfycbyXRtspwKfCFKJcrNHz3QxQOvMGnhyW95n4Gr4-xHEtxmsxbOjWOUQMSaXemdW9RgNJ/exec";
 
 
         // ============================================================
@@ -218,6 +220,7 @@
                 }
 
             }
+
             catch (error) {
 
                 console.error(error);
@@ -253,6 +256,7 @@
                     });
 
                 }
+
                 catch (error) {
 
                     console.error(error);
@@ -462,6 +466,7 @@
                                             });
 
                                         }
+
                                         catch (error) {
 
                                             console.log(
@@ -494,6 +499,7 @@
                                     "Visuals discovered successfully.";
 
                             }
+
                             catch (error) {
 
                                 console.error(error);
@@ -523,6 +529,7 @@
                     );
 
                 }
+
                 catch (error) {
 
                     console.error(error);
@@ -686,8 +693,10 @@
                             "th"
                         );
 
+
                     th.textContent =
                         header;
+
 
                     headerRow.appendChild(
                         th
@@ -752,8 +761,10 @@
                                     "td"
                                 );
 
+
                             td.textContent =
                                 value;
+
 
                             tr.appendChild(
                                 td
@@ -963,7 +974,7 @@
             "submitButton"
         ).addEventListener(
             "click",
-            function () {
+            async function () {
 
                 const selectedIndex =
                     Number(
@@ -1145,6 +1156,57 @@
                     "payloadContainer"
                 ).style.display =
                     "block";
+
+
+                try {
+
+                    document.getElementById(
+                        "status"
+                    ).textContent =
+                        "Submitting data...";
+
+
+                    await fetch(
+                        APPS_SCRIPT_URL,
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "text/plain"
+                            },
+
+                            body:
+                                JSON.stringify(
+                                    payload
+                                ),
+
+                            mode: "no-cors"
+                        }
+                    );
+
+
+                    document.getElementById(
+                        "status"
+                    ).textContent =
+                        "Submitted successfully to Google Sheet.";
+
+                }
+
+                catch (error) {
+
+                    console.error(
+                        "Submit failed:",
+                        error
+                    );
+
+                    document.getElementById(
+                        "status"
+                    ).textContent =
+                        "Submit failed: " +
+                        error.message;
+                }
+
             }
         );
 
