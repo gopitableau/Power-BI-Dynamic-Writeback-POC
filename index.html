@@ -13,11 +13,18 @@
 
     <button id="loginButton">Sign in with Microsoft</button>
 
+    <button id="testPowerBIButton" style="display:none;">
+        Test Power BI Access
+    </button>
+
     <p id="status">
         Not signed in.
     </p>
 
+    <pre id="result"></pre>
+
     <script>
+
         const CLIENT_ID = "6588aca8-e4a4-4d89-b1b0-3ddac9ac3db9";
 
         const msalConfig = {
@@ -35,15 +42,23 @@
         const msalInstance =
             new msal.PublicClientApplication(msalConfig);
 
+        const powerBIScope =
+            "https://analysis.windows.net/powerbi/api/Report.Read.All";
+
+
         async function initialize() {
+
             try {
+
                 await msalInstance.initialize();
 
                 const response =
                     await msalInstance.handleRedirectPromise();
 
                 if (response) {
+
                     showSignedInUser(response.account);
+
                     return;
                 }
 
@@ -51,10 +66,13 @@
                     msalInstance.getAllAccounts();
 
                 if (accounts.length > 0) {
+
                     showSignedInUser(accounts[0]);
                 }
 
-            } catch (error) {
+            }
+            catch (error) {
+
                 console.error(error);
 
                 document.getElementById("status").textContent =
@@ -62,32 +80,125 @@
             }
         }
 
+
         document.getElementById("loginButton")
             .addEventListener("click", async function () {
 
                 try {
+
                     await msalInstance.loginRedirect({
+
                         scopes: [
                             "User.Read",
-                            "https://analysis.windows.net/powerbi/api/Report.Read.All"
+                            powerBIScope
                         ]
+
                     });
 
-                } catch (error) {
+                }
+                catch (error) {
+
                     console.error(error);
 
                     document.getElementById("status").textContent =
                         "Login error: " + error.message;
                 }
+
             });
 
-        function showSignedInUser(account) {
+
+        async function showSignedInUser(account) {
+
             document.getElementById("status").textContent =
                 "Signed in successfully as: " +
                 (account.username || account.name);
+
+            document.getElementById("loginButton").style.display =
+                "none";
+
+            document.getElementById("testPowerBIButton").style.display =
+                "inline-block";
         }
 
+
+        document.getElementById("testPowerBIButton")
+            .addEventListener("click", async function () {
+
+                const resultElement =
+                    document.getElementById("result");
+
+                resultElement.textContent =
+                    "Getting Power BI access token...";
+
+                try {
+
+                    const accounts =
+                        msalInstance.getAllAccounts();
+
+                    if (accounts.length === 0) {
+
+                        throw new Error(
+                            "No signed-in account found."
+                        );
+                    }
+
+                    const tokenResponse =
+                        await msalInstance.acquireTokenSilent({
+
+                            scopes: [powerBIScope],
+
+                            account: accounts[0]
+
+                        });
+
+                    resultElement.textContent =
+                        "Token received. Calling Power BI...";
+
+                    const response =
+                        await fetch(
+                            "https://api.powerbi.com/v1.0/myorg/reports",
+                            {
+                                method: "GET",
+
+                                headers: {
+                                    "Authorization":
+                                        "Bearer " +
+                                        tokenResponse.accessToken
+                                }
+                            }
+                        );
+
+                    const data =
+                        await response.json();
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            "Power BI API error: " +
+                            response.status +
+                            " " +
+                            JSON.stringify(data)
+                        );
+                    }
+
+                    resultElement.textContent =
+                        JSON.stringify(data, null, 2);
+
+                }
+                catch (error) {
+
+                    console.error(error);
+
+                    resultElement.textContent =
+                        "Power BI test failed:\n\n" +
+                        error.message;
+                }
+
+            });
+
+
         initialize();
+
     </script>
 
 </body>
