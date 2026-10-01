@@ -154,17 +154,34 @@
         <h3>Send Email</h3>
 
         <label for="emailTo">To:</label>
-        <input type="email" id="emailTo" placeholder="developer@example.com">
+        <input
+            type="email"
+            id="emailTo"
+            placeholder="developer@example.com"
+        >
 
         <label for="emailSubject">Subject:</label>
-        <input type="text" id="emailSubject">
+        <input
+            type="text"
+            id="emailSubject"
+        >
 
         <label for="emailMessage">Message:</label>
-        <textarea id="emailMessage" placeholder="Enter your message to the developer..."></textarea>
+        <textarea
+            id="emailMessage"
+            placeholder="Enter your message to the developer..."
+        ></textarea>
 
         <div id="emailFormButtons">
-            <button id="sendEmailConfirmButton">Send</button>
-            <button id="cancelEmailButton">Cancel</button>
+
+            <button id="sendEmailConfirmButton">
+                Send
+            </button>
+
+            <button id="cancelEmailButton">
+                Cancel
+            </button>
+
         </div>
 
     </div>
@@ -207,7 +224,8 @@
 
             auth: {
 
-                clientId: CLIENT_ID,
+                clientId:
+                    CLIENT_ID,
 
                 authority:
                     "https://login.microsoftonline.com/organizations",
@@ -218,21 +236,28 @@
 
             cache: {
 
-                cacheLocation: "localStorage"
+                cacheLocation:
+                    "localStorage"
             }
         };
 
 
         const msalInstance =
-            new msal.PublicClientApplication(msalConfig);
+            new msal.PublicClientApplication(
+                msalConfig
+            );
 
 
         const POWERBI_SCOPE =
             "https://analysis.windows.net/powerbi/api/Report.Read.All";
 
+
         const GRAPH_SCOPES = [
+
             "User.Read",
-            "Mail.Send"
+
+            "https://graph.microsoft.com/Mail.Send"
+
         ];
 
 
@@ -252,6 +277,7 @@
             try {
 
                 await msalInstance.initialize();
+
 
                 const response =
                     await msalInstance.handleRedirectPromise();
@@ -284,6 +310,7 @@
 
                 console.error(error);
 
+
                 document.getElementById(
                     "status"
                 ).textContent =
@@ -307,7 +334,8 @@
 
                     await msalInstance.loginRedirect({
 
-                        scopes: GRAPH_SCOPES
+                        scopes:
+                            GRAPH_SCOPES
 
                     });
 
@@ -316,6 +344,7 @@
                 catch (error) {
 
                     console.error(error);
+
 
                     document.getElementById(
                         "status"
@@ -338,7 +367,10 @@
                 "status"
             ).textContent =
                 "Signed in successfully as: " +
-                (account.username || account.name);
+                (
+                    account.username ||
+                    account.name
+                );
 
 
             document.getElementById(
@@ -375,9 +407,11 @@
             const tokenResponse =
                 await msalInstance.acquireTokenSilent({
 
-                    scopes: [POWERBI_SCOPE],
+                    scopes:
+                        [POWERBI_SCOPE],
 
-                    account: accounts[0]
+                    account:
+                        accounts[0]
 
                 });
 
@@ -416,7 +450,8 @@
 
                     const embedConfiguration = {
 
-                        type: "report",
+                        type:
+                            "report",
 
                         tokenType:
                             models.TokenType.Aad,
@@ -438,11 +473,15 @@
                             panes: {
 
                                 filters: {
-                                    visible: false
+
+                                    visible:
+                                        false
                                 },
 
                                 pageNavigation: {
-                                    visible: false
+
+                                    visible:
+                                        false
                                 }
 
                             }
@@ -560,6 +599,7 @@
 
                                 console.error(error);
 
+
                                 document.getElementById(
                                     "status"
                                 ).textContent =
@@ -577,6 +617,7 @@
 
                             console.error(event);
 
+
                             document.getElementById(
                                 "status"
                             ).textContent =
@@ -589,6 +630,7 @@
                 catch (error) {
 
                     console.error(error);
+
 
                     document.getElementById(
                         "status"
@@ -613,11 +655,15 @@
                 );
 
 
-            selector.innerHTML = "";
+            selector.innerHTML =
+                "";
 
 
             discoveredVisuals.forEach(
-                function (visual, index) {
+                function (
+                    visual,
+                    index
+                ) {
 
                     const option =
                         document.createElement(
@@ -648,7 +694,10 @@
 
                 newRows = [];
 
-                renderSelectedVisual(0);
+
+                renderSelectedVisual(
+                    0
+                );
             }
         }
 
@@ -689,7 +738,9 @@
         // RENDER SELECTED VISUAL
         // ============================================================
 
-        function renderSelectedVisual(index) {
+        function renderSelectedVisual(
+            index
+        ) {
 
             const visual =
                 discoveredVisuals[index];
@@ -742,7 +793,9 @@
 
 
             headers.forEach(
-                function (header) {
+                function (
+                    header
+                ) {
 
                     const th =
                         document.createElement(
@@ -797,7 +850,9 @@
             // --------------------------------------------------------
 
             dataRows.forEach(
-                function (row) {
+                function (
+                    row
+                ) {
 
                     const tr =
                         document.createElement(
@@ -810,7 +865,9 @@
 
 
                     row.forEach(
-                        function (value) {
+                        function (
+                            value
+                        ) {
 
                             const td =
                                 document.createElement(
@@ -881,7 +938,10 @@
             // --------------------------------------------------------
 
             newRows.forEach(
-                function (newRow, newRowIndex) {
+                function (
+                    newRow,
+                    newRowIndex
+                ) {
 
                     const tr =
                         document.createElement(
@@ -894,7 +954,10 @@
 
 
                     newRow.forEach(
-                        function (value, columnIndex) {
+                        function (
+                            value,
+                            columnIndex
+                        ) {
 
                             const td =
                                 document.createElement(
@@ -1106,7 +1169,9 @@
 
 
                 tableRows.forEach(
-                    function (tr) {
+                    function (
+                        tr
+                    ) {
 
                         const recordType =
                             tr.dataset.recordType;
@@ -1136,7 +1201,9 @@
                                     columnIndex
                                 ) {
 
-                                    record[header] =
+                                    record[
+                                        header
+                                    ] =
                                         cells[
                                             columnIndex
                                         ].textContent;
@@ -1166,7 +1233,9 @@
                                     columnIndex
                                 ) {
 
-                                    record[header] =
+                                    record[
+                                        header
+                                    ] =
                                         cells[
                                             columnIndex
                                         ]
@@ -1182,6 +1251,7 @@
                                 cells[
                                     headers.length
                                 ] !== undefined
+
                                     ? cells[
                                         headers.length
                                     ]
@@ -1189,6 +1259,7 @@
                                             "input"
                                         )
                                         ?.value || ""
+
                                     : "";
                         }
 
@@ -1239,9 +1310,12 @@
                     await fetch(
                         APPS_SCRIPT_URL,
                         {
-                            method: "POST",
+
+                            method:
+                                "POST",
 
                             headers: {
+
                                 "Content-Type":
                                     "text/plain"
                             },
@@ -1251,7 +1325,8 @@
                                     payload
                                 ),
 
-                            mode: "no-cors"
+                            mode:
+                                "no-cors"
                         }
                     );
 
@@ -1270,6 +1345,7 @@
                         error
                     );
 
+
                     document.getElementById(
                         "status"
                     ).textContent =
@@ -1279,7 +1355,9 @@
 
             }
         );
-                // ============================================================
+
+
+        // ============================================================
         // EMAIL FORM
         // ============================================================
 
@@ -1296,25 +1374,34 @@
                         ).value
                     );
 
+
                 const visual =
                     discoveredVisuals[
                         selectedIndex
                     ];
 
+
                 if (!visual) {
+
                     return;
                 }
+
 
                 document.getElementById(
                     "emailSubject"
                 ).value =
-                    "Tableau Feedback - " +
-                    (visual.visualTitle || visual.visualName);
+                    "Power BI Feedback - " +
+                    (
+                        visual.visualTitle ||
+                        visual.visualName
+                    );
+
 
                 document.getElementById(
                     "emailFormContainer"
                 ).style.display =
                     "block";
+
 
                 document.getElementById(
                     "emailMessage"
@@ -1322,6 +1409,10 @@
             }
         );
 
+
+        // ============================================================
+        // CANCEL EMAIL
+        // ============================================================
 
         document.getElementById(
             "cancelEmailButton"
@@ -1333,6 +1424,12 @@
                     "emailFormContainer"
                 ).style.display =
                     "none";
+
+
+                document.getElementById(
+                    "status"
+                ).textContent =
+                    "Email cancelled.";
             }
         );
 
@@ -1364,6 +1461,10 @@
                         "emailMessage"
                     ).value.trim();
 
+
+                // ----------------------------------------------------
+                // VALIDATION
+                // ----------------------------------------------------
 
                 if (!to) {
 
@@ -1400,6 +1501,10 @@
 
                 try {
 
+                    // ------------------------------------------------
+                    // STEP 1: PREPARING
+                    // ------------------------------------------------
+
                     document.getElementById(
                         "status"
                     ).textContent =
@@ -1410,7 +1515,9 @@
                         msalInstance.getAllAccounts();
 
 
-                    if (accounts.length === 0) {
+                    if (
+                        accounts.length === 0
+                    ) {
 
                         throw new Error(
                             "No signed-in account found."
@@ -1421,13 +1528,23 @@
                     let tokenResponse;
 
 
+                    // ------------------------------------------------
+                    // STEP 2: GET GRAPH TOKEN
+                    // ------------------------------------------------
+
+                    document.getElementById(
+                        "status"
+                    ).textContent =
+                        "Requesting email permission...";
+
+
                     try {
 
                         tokenResponse =
                             await msalInstance.acquireTokenSilent({
 
                                 scopes: [
-                                    "Mail.Send"
+                                    "https://graph.microsoft.com/Mail.Send"
                                 ],
 
                                 account:
@@ -1437,19 +1554,27 @@
 
                     }
 
-                    catch (silentError) {
+                    catch (
+                        silentError
+                    ) {
 
                         console.log(
-                            "Silent Mail.Send token request requires interaction:",
+                            "Silent token acquisition failed:",
                             silentError
                         );
+
+
+                        document.getElementById(
+                            "status"
+                        ).textContent =
+                            "Microsoft permission is required...";
 
 
                         tokenResponse =
                             await msalInstance.acquireTokenPopup({
 
                                 scopes: [
-                                    "Mail.Send"
+                                    "https://graph.microsoft.com/Mail.Send"
                                 ],
 
                                 account:
@@ -1459,11 +1584,23 @@
                     }
 
 
+                    // ------------------------------------------------
+                    // STEP 3: SEND EMAIL
+                    // ------------------------------------------------
+
+                    document.getElementById(
+                        "status"
+                    ).textContent =
+                        "Sending email...";
+
+
                     const graphResponse =
                         await fetch(
                             "https://graph.microsoft.com/v1.0/me/sendMail",
                             {
-                                method: "POST",
+
+                                method:
+                                    "POST",
 
                                 headers: {
 
@@ -1502,17 +1639,25 @@
                                                             to
                                                     }
                                                 }
+
                                             ]
                                         },
 
                                         saveToSentItems:
                                             true
+
                                     })
                             }
                         );
 
 
-                    if (!graphResponse.ok) {
+                    // ------------------------------------------------
+                    // STEP 4: CHECK GRAPH RESPONSE
+                    // ------------------------------------------------
+
+                    if (
+                        !graphResponse.ok
+                    ) {
 
                         const errorText =
                             await graphResponse.text();
@@ -1527,6 +1672,10 @@
                     }
 
 
+                    // ------------------------------------------------
+                    // STEP 5: SUCCESS
+                    // ------------------------------------------------
+
                     document.getElementById(
                         "status"
                     ).textContent =
@@ -1538,9 +1687,19 @@
                     ).style.display =
                         "none";
 
+
+                    // Clear message after successful send
+
+                    document.getElementById(
+                        "emailMessage"
+                    ).value =
+                        "";
+
                 }
 
-                catch (error) {
+                catch (
+                    error
+                ) {
 
                     console.error(
                         "Email send failed:",
@@ -1563,22 +1722,34 @@
         // SIMPLE CSV PARSER
         // ============================================================
 
-        function parseCSV(csv) {
+        function parseCSV(
+            csv
+        ) {
 
             const lines =
                 csv
                     .trim()
-                    .split(/\r?\n/);
+                    .split(
+                        /\r?\n/
+                    );
 
 
             return lines.map(
-                function (line) {
+                function (
+                    line
+                ) {
 
-                    return line.split(",");
+                    return line.split(
+                        ","
+                    );
                 }
             );
         }
 
+
+        // ============================================================
+        // START APPLICATION
+        // ============================================================
 
         initialize();
 
