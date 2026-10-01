@@ -56,6 +56,36 @@
             margin-top: 15px;
         }
 
+        #emailFormContainer {
+            display: none;
+            margin-top: 20px;
+            max-width: 700px;
+            border: 1px solid #cccccc;
+            padding: 15px;
+        }
+
+        #emailFormContainer label {
+            display: block;
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+
+        #emailFormContainer input,
+        #emailFormContainer textarea {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 8px;
+        }
+
+        #emailFormContainer textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        #emailFormButtons {
+            margin-top: 15px;
+        }
+
         #payloadContainer {
             margin-top: 20px;
         }
@@ -116,6 +146,26 @@
         <button id="sendEmailButton">
             Send Email
         </button>
+
+    </div>
+
+    <div id="emailFormContainer">
+
+        <h3>Send Email</h3>
+
+        <label for="emailTo">To:</label>
+        <input type="email" id="emailTo" placeholder="developer@example.com">
+
+        <label for="emailSubject">Subject:</label>
+        <input type="text" id="emailSubject">
+
+        <label for="emailMessage">Message:</label>
+        <textarea id="emailMessage" placeholder="Enter your message to the developer..."></textarea>
+
+        <div id="emailFormButtons">
+            <button id="sendEmailConfirmButton">Send</button>
+            <button id="cancelEmailButton">Cancel</button>
+        </div>
 
     </div>
 
@@ -1227,6 +1277,78 @@
                         error.message;
                 }
 
+            }
+        );
+
+
+        // ============================================================
+        // EMAIL FORM
+        // ============================================================
+
+        document.getElementById(
+            "sendEmailButton"
+        ).addEventListener(
+            "click",
+            function () {
+
+                const selectedIndex =
+                    Number(
+                        document.getElementById(
+                            "visualSelector"
+                        ).value
+                    );
+
+                const visual =
+                    discoveredVisuals[
+                        selectedIndex
+                    ];
+
+                if (!visual) {
+                    return;
+                }
+
+                document.getElementById(
+                    "emailSubject"
+                ).value =
+                    "Tableau Feedback - " +
+                    (visual.visualTitle || visual.visualName);
+
+                document.getElementById(
+                    "emailFormContainer"
+                ).style.display =
+                    "block";
+
+                document.getElementById(
+                    "emailMessage"
+                ).focus();
+            }
+        );
+
+
+        document.getElementById(
+            "cancelEmailButton"
+        ).addEventListener(
+            "click",
+            function () {
+
+                document.getElementById(
+                    "emailFormContainer"
+                ).style.display =
+                    "none";
+            }
+        );
+
+
+        document.getElementById(
+            "sendEmailConfirmButton"
+        ).addEventListener(
+            "click",
+            function () {
+
+                document.getElementById(
+                    "status"
+                ).textContent =
+                    "Email sending will be connected in the next step.";
             }
         );
 
