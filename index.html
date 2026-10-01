@@ -1279,9 +1279,7 @@
 
             }
         );
-
-
-        // ============================================================
+                // ============================================================
         // EMAIL FORM
         // ============================================================
 
@@ -1339,16 +1337,224 @@
         );
 
 
+        // ============================================================
+        // SEND EMAIL USING MICROSOFT GRAPH
+        // ============================================================
+
         document.getElementById(
             "sendEmailConfirmButton"
         ).addEventListener(
             "click",
-            function () {
+            async function () {
 
-                document.getElementById(
-                    "status"
-                ).textContent =
-                    "Email sending will be connected in the next step.";
+                const to =
+                    document.getElementById(
+                        "emailTo"
+                    ).value.trim();
+
+
+                const subject =
+                    document.getElementById(
+                        "emailSubject"
+                    ).value.trim();
+
+
+                const message =
+                    document.getElementById(
+                        "emailMessage"
+                    ).value.trim();
+
+
+                if (!to) {
+
+                    document.getElementById(
+                        "status"
+                    ).textContent =
+                        "Please enter a recipient email address.";
+
+                    return;
+                }
+
+
+                if (!subject) {
+
+                    document.getElementById(
+                        "status"
+                    ).textContent =
+                        "Please enter an email subject.";
+
+                    return;
+                }
+
+
+                if (!message) {
+
+                    document.getElementById(
+                        "status"
+                    ).textContent =
+                        "Please enter a message.";
+
+                    return;
+                }
+
+
+                try {
+
+                    document.getElementById(
+                        "status"
+                    ).textContent =
+                        "Preparing email...";
+
+
+                    const accounts =
+                        msalInstance.getAllAccounts();
+
+
+                    if (accounts.length === 0) {
+
+                        throw new Error(
+                            "No signed-in account found."
+                        );
+                    }
+
+
+                    let tokenResponse;
+
+
+                    try {
+
+                        tokenResponse =
+                            await msalInstance.acquireTokenSilent({
+
+                                scopes: [
+                                    "Mail.Send"
+                                ],
+
+                                account:
+                                    accounts[0]
+
+                            });
+
+                    }
+
+                    catch (silentError) {
+
+                        console.log(
+                            "Silent Mail.Send token request requires interaction:",
+                            silentError
+                        );
+
+
+                        tokenResponse =
+                            await msalInstance.acquireTokenPopup({
+
+                                scopes: [
+                                    "Mail.Send"
+                                ],
+
+                                account:
+                                    accounts[0]
+
+                            });
+                    }
+
+
+                    const graphResponse =
+                        await fetch(
+                            "https://graph.microsoft.com/v1.0/me/sendMail",
+                            {
+                                method: "POST",
+
+                                headers: {
+
+                                    "Authorization":
+                                        "Bearer " +
+                                        tokenResponse.accessToken,
+
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                                body:
+                                    JSON.stringify({
+
+                                        message: {
+
+                                            subject:
+                                                subject,
+
+                                            body: {
+
+                                                contentType:
+                                                    "Text",
+
+                                                content:
+                                                    message
+                                            },
+
+                                            toRecipients: [
+
+                                                {
+
+                                                    emailAddress: {
+
+                                                        address:
+                                                            to
+                                                    }
+                                                }
+                                            ]
+                                        },
+
+                                        saveToSentItems:
+                                            true
+                                    })
+                            }
+                        );
+
+
+                    if (!graphResponse.ok) {
+
+                        const errorText =
+                            await graphResponse.text();
+
+
+                        throw new Error(
+                            "Microsoft Graph error: " +
+                            graphResponse.status +
+                            " " +
+                            errorText
+                        );
+                    }
+
+
+                    document.getElementById(
+                        "status"
+                    ).textContent =
+                        "Email sent successfully.";
+
+
+                    document.getElementById(
+                        "emailFormContainer"
+                    ).style.display =
+                        "none";
+
+                }
+
+                catch (error) {
+
+                    console.error(
+                        "Email send failed:",
+                        error
+                    );
+
+
+                    document.getElementById(
+                        "status"
+                    ).textContent =
+                        "Email send failed: " +
+                        error.message;
+                }
+
             }
         );
 
