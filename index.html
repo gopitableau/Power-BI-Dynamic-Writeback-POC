@@ -173,10 +173,13 @@
             new msal.PublicClientApplication(msalConfig);
 
 
-        const scopes = [
-    "https://analysis.windows.net/powerbi/api/Report.Read.All",
-    "https://graph.microsoft.com/Mail.Send"
-];
+        const POWERBI_SCOPE =
+            "https://analysis.windows.net/powerbi/api/Report.Read.All";
+
+        const GRAPH_SCOPES = [
+            "User.Read",
+            "Mail.Send"
+        ];
 
 
         let embeddedReport = null;
@@ -250,10 +253,7 @@
 
                     await msalInstance.loginRedirect({
 
-                        scopes: [
-                            "User.Read",
-                            powerBIScope
-                        ]
+                        scopes: GRAPH_SCOPES
 
                     });
 
@@ -321,7 +321,7 @@
             const tokenResponse =
                 await msalInstance.acquireTokenSilent({
 
-                    scopes: [powerBIScope],
+                    scopes: [POWERBI_SCOPE],
 
                     account: accounts[0]
 
@@ -781,29 +781,33 @@
                         );
 
 
-                   const input =
-    document.createElement(
-        "input"
-    );
+                    const input =
+                        document.createElement(
+                            "input"
+                        );
 
-input.type =
-    "text";
 
-input.dataset.edited =
-    "false";
+                    input.type =
+                        "text";
 
-input.addEventListener(
-    "input",
-    function () {
 
-        input.dataset.edited =
-            "true";
-    }
-);
+                    input.dataset.edited =
+                        "false";
 
-inputCell.appendChild(
-    input
-);
+
+                    input.addEventListener(
+                        "input",
+                        function () {
+
+                            input.dataset.edited =
+                                "true";
+                        }
+                    );
+
+
+                    inputCell.appendChild(
+                        input
+                    );
 
 
                     tr.appendChild(
@@ -1249,4 +1253,4 @@ inputCell.appendChild(
     </script>
 
 </body>
-</html>	
+</html>
