@@ -173,8 +173,10 @@
             new msal.PublicClientApplication(msalConfig);
 
 
-        const powerBIScope =
-            "https://analysis.windows.net/powerbi/api/Report.Read.All";
+        const scopes = [
+    "https://analysis.windows.net/powerbi/api/Report.Read.All",
+    "https://graph.microsoft.com/Mail.Send"
+];
 
 
         let embeddedReport = null;
